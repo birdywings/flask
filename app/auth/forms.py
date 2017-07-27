@@ -27,3 +27,32 @@ class RegistrationForm(FlaskForm):
     def validate_username(self,filed):
         if User.query.filter_by(username=filed.data).first():
             raise ValidationError('这个用户名已经注册')
+
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField('原密码',validators=[DataRequired()])
+    password = PasswordField('新密码',validators=[DataRequired(),EqualTo('password2',message='输入的两次密码必须匹配')])
+    password2 = PasswordField('再次输入新密码',validators=[DataRequired()])
+    submint = SubmitField('确定')
+
+class PasswordResetRequestForm(FlaskForm) :
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(1, 64)])
+    submint = SubmitField('确定')
+
+class PasswordResetForm(FlaskForm) :
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(1, 64)])
+    password = PasswordField('新密码', validators=[DataRequired(), EqualTo('password2', message='输入的两次密码必须匹配')])
+    password2 = PasswordField('再次输入新密码', validators=[DataRequired()])
+    submint = SubmitField('确定')
+
+    def validate_email(self,filed) :
+        if not User.query.filter_by(email=filed.data).first() :
+            raise ValidationError('邮箱不存在')
+
+class ChangeEmailForm(FlaskForm):
+    email = StringField('新Email', validators=[DataRequired(), Email(), Length(1, 64)])
+    password = PasswordField('密码',validators=[DataRequired()])
+    submint = SubmitField('确定')
+
+    def validate_email(self,filed) :
+        if  User.query.filter_by(email=filed.data).first() :
+            raise ValidationError('邮箱已存在')
